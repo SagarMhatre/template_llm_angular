@@ -1,0 +1,30 @@
+services:
+  angular:
+    image: node:22
+    working_dir: /workspace
+    entrypoint:
+      - bash
+      - /workspace/docker/entrypoint.sh
+    command:
+      - npm
+      - run
+      - start
+      - --
+      - --host=0.0.0.0
+      - --port=4200
+      - --poll=2000
+    environment:
+      CHOKIDAR_USEPOLLING: "1"
+      NG_CLI_ANALYTICS: "false"
+    volumes:
+      - .:/workspace
+      - node_modules:/workspace/node_modules
+      - npm_cache:/root/.npm
+    ports:
+      - "4200:4200"
+    stdin_open: true
+    tty: true
+
+volumes:
+  node_modules:
+  npm_cache:
