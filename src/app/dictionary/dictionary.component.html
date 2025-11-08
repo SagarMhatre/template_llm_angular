@@ -14,6 +14,7 @@
           [attr.maxlength]="maxLength"
           placeholder="e.g. serendipity"
           [value]="term()"
+          [disabled]="loading()"
           (input)="updateTerm($event)"
         />
         <mat-hint align="end">{{ term().length }}/{{ maxLength }}</mat-hint>
@@ -24,13 +25,24 @@
           mat-raised-button
           color="primary"
           (click)="submit()"
-          [disabled]="!term().trim().length"
+          [disabled]="loading() || !term().trim().length || !promptState.apiKey().trim().length"
         >
-          Submit
+          <ng-container *ngIf="!loading(); else loadingTpl">Submit</ng-container>
         </button>
+        <ng-template #loadingTpl>Loading…</ng-template>
       </div>
 
-      <p class="status">{{ message() }}</p>
+      <p class="status" [class.error]="error()">
+        {{ error() ?? info() }}
+      </p>
+
+      <section class="result" *ngIf="explanation() || examples()">
+        <h3>Explanation</h3>
+        <p>{{ explanation() }}</p>
+
+        <h3 *ngIf="examples()">Examples</h3>
+        <pre *ngIf="examples()">{{ examples() }}</pre>
+      </section>
     </mat-card-content>
   </mat-card>
 </section>
