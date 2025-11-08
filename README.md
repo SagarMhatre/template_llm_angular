@@ -1,6 +1,6 @@
 # AngularLlm
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.9 and is intended to run entirely inside Docker so that no global Angular CLI or Node installation is required locally.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.9 and is intended to run entirely inside Docker so that no global Angular CLI or Node installation is required locally. A lightweight Express server (powered by `volcano-sdk`) runs alongside the Angular dev server to proxy OpenAI calls securely from the browser.
 
 ## Docker-first workflow
 
@@ -10,7 +10,10 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
    docker compose up
    ```
 
-   The Angular dev server becomes available at `http://localhost:4200/` and picks up source changes instantly because the workspace is bind-mounted into the container. File watching relies on polling, so it works reliably across Docker Desktop/WSL.
+   - Angular dev server: `http://localhost:4200/`
+   - Volcano-powered API proxy: `http://localhost:4300/api`
+
+   File watching relies on polling, so it works reliably across Docker Desktop/WSL.
 
 2. Stop the server with `Ctrl+C` in the compose terminal or run `docker compose down`.
 
@@ -23,6 +26,21 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
    ```
 
    A named Docker volume is used for `node_modules`, so dependencies stay inside Docker and survive restarts without touching your host environment.
+
+## Volcano SDK proxy
+
+- Location: `server/index.mjs`
+- Stack: Express + `volcano-sdk` (calling OpenAI via the `llmOpenAI` helper)
+- Endpoint: `POST /api/prompt` with JSON `{ "apiKey": "sk-...", "prompt": "..." }`
+- Response: `{ "response": "<model output>" }` or `{ "error": "<message>" }`
+
+The Angular UI collects the OpenAI API key and prompt from the user, forwards them to `/api/prompt`, and displays whatever the Volcano agent returns. Because the proxy runs within the same container, requests from `ng serve` are routed through `proxy.conf.json`, keeping everything on `localhost:4200`.
+
+Environment overrides:
+
+- `OPENAI_MODEL` (default `gpt-4o-mini`)
+- `API_PORT` (default `4300`)
+- `API_HOST` (default `0.0.0.0`)
 
 ## Development server
 
