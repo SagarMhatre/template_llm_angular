@@ -4,8 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { SettingsComponent } from './settings/settings.component';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +16,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule
+    SettingsComponent
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss'
@@ -29,6 +29,7 @@ export class App {
   protected readonly selectedModel = signal('gpt-4o-mini');
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly showSettings = signal(false);
 
   protected readonly availableModels = [
     { value: 'gpt-4o-mini', label: 'GPT-4o Mini (cheap, fast)' },
@@ -37,8 +38,12 @@ export class App {
     { value: 'gpt-4.1', label: 'GPT-4.1' }
   ];
 
-  protected updateApiKey(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
+  protected updatePrompt(event: Event): void {
+    const value = (event.target as HTMLTextAreaElement).value;
+    this.prompt.set(value);
+  }
+
+  protected setApiKey(value: string): void {
     this.apiKey.set(value);
   }
 
@@ -46,9 +51,8 @@ export class App {
     this.selectedModel.set(value);
   }
 
-  protected updatePrompt(event: Event): void {
-    const value = (event.target as HTMLTextAreaElement).value;
-    this.prompt.set(value);
+  protected toggleSettings(force?: boolean): void {
+    this.showSettings.set(force ?? !this.showSettings());
   }
 
   protected async sendPrompt(): Promise<void> {

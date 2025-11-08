@@ -43,3 +43,21 @@ mat-toolbar {
   margin: 0 0 1rem;
   font-weight: 500;
 }
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 20;
+}
+
+.settings-container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 30;
+  padding: 1rem;
+  box-sizing: border-box;
+}

@@ -1,6 +1,22 @@
 <mat-toolbar color="primary">
   <span>{{ title() | titlecase }}</span>
+  <span class="spacer"></span>
+  <button mat-stroked-button color="accent" (click)="toggleSettings(true)">Settings</button>
 </mat-toolbar>
+
+<div class="backdrop" *ngIf="showSettings()" (click)="toggleSettings(false)"></div>
+
+<div class="settings-container" *ngIf="showSettings()">
+  <app-settings-panel
+    [apiKey]="apiKey()"
+    [selectedModel]="selectedModel()"
+    [availableModels]="availableModels"
+    [loading]="loading()"
+    (apiKeyChange)="setApiKey($event)"
+    (modelChange)="updateModel($event)"
+    (close)="toggleSettings(false)"
+  ></app-settings-panel>
+</div>
 
 <main class="content" role="main">
   <mat-card class="prompt-card">
@@ -10,33 +26,6 @@
     </mat-card-header>
 
     <mat-card-content>
-      <mat-form-field appearance="outline" class="field">
-        <mat-label>OpenAI API Key</mat-label>
-        <input
-          matInput
-          type="password"
-          placeholder="sk-..."
-          autocomplete="off"
-          [value]="apiKey()"
-          [disabled]="loading()"
-          (input)="updateApiKey($event)"
-        />
-        <mat-hint align="end">Never stored, only used for this request.</mat-hint>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="field">
-        <mat-label>Model</mat-label>
-        <mat-select
-          [value]="selectedModel()"
-          [disabled]="loading()"
-          (selectionChange)="updateModel($event.value)"
-        >
-          <mat-option *ngFor="let model of availableModels" [value]="model.value">
-            {{ model.label }} ({{ model.value }})
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
       <mat-form-field appearance="outline" class="field">
         <mat-label>Your prompt</mat-label>
         <textarea
