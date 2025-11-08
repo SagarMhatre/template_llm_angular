@@ -1,8 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-
-interface ChoiceMessage {
-  content?: string | Array<{ text?: string }>;
-}
+import { OpenAIService } from './openai.service';
 
 @Injectable({ providedIn: 'root' })
 export class PromptStateService {
@@ -19,6 +16,8 @@ export class PromptStateService {
     { value: 'gpt-4.1-mini', label: 'GPT-4.1 Mini' },
     { value: 'gpt-4.1', label: 'GPT-4.1' }
   ];
+
+  constructor(private readonly openAI: OpenAIService) {}
 
   setApiKey(value: string): void {
     this.apiKey.set(value);
@@ -50,51 +49,10 @@ export class PromptStateService {
     this.response.set('');
 
     try {
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${key}`
-        },
-        body: JSON.stringify({
-          model: this.selectedModel(),
-          messages: [{ role: 'user', content: text }]
-        })
-      });
-
-      if (!res.ok) {
-        let message = `Request failed (${res.status})`;
-        try {
-          const body = (await res.json()) as { error?: { message?: string } };
-          if (body?.error?.message) {
-            message = body.error.message;
-          }
-        } catch {
-          // ignore JSON parse errors
-        }
-        throw new Error(message);
-      }
-
-      const data = (await res.json()) as {
-        choices?: Array<{ message?: ChoiceMessage }>;
-      };
-
-      const choice = data.choices?.[0];
-      const message = choice?.message?.content;
-      let result = '';
-
-      if (typeof message === 'string') {
-        result = message;
-      } else if (Array.isArray(message)) {
-        result = message
-          .map((segment) => segment?.text ?? '')
-          .filter(Boolean)
-          .join('\n');
-      } else {
-        result = '(No text returned from OpenAI)';
-      }
-
-      this.response.set(result);
+      const content = await this.openAI.complete(key, this.selectedModel(), [
+        { role: 'user', content: text }
+      ]);
+      this.response.set(content);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error contacting OpenAI.';
       this.error.set(message);
