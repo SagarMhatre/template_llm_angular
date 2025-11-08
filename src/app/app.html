@@ -11,12 +11,40 @@
 
     <mat-card-content>
       <mat-form-field appearance="outline" class="field">
+        <mat-label>OpenAI API Key</mat-label>
+        <input
+          matInput
+          type="password"
+          placeholder="sk-..."
+          autocomplete="off"
+          [value]="apiKey()"
+          [disabled]="loading()"
+          (input)="updateApiKey($event)"
+        />
+        <mat-hint align="end">Never stored, only used for this request.</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Model</mat-label>
+        <mat-select
+          [value]="selectedModel()"
+          [disabled]="loading()"
+          (selectionChange)="updateModel($event.value)"
+        >
+          <mat-option *ngFor="let model of availableModels" [value]="model.value">
+            {{ model.label }} ({{ model.value }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
         <mat-label>Your prompt</mat-label>
         <textarea
           matInput
           rows="6"
           placeholder="Describe the task or question you want to send to the model..."
           [value]="prompt()"
+          [disabled]="loading()"
           (input)="updatePrompt($event)"
         ></textarea>
       </mat-form-field>
@@ -26,11 +54,14 @@
           mat-raised-button
           color="primary"
           (click)="sendPrompt()"
-          [disabled]="!prompt().trim().length"
+          [disabled]="loading() || !prompt().trim().length || !apiKey().trim().length"
         >
-          Send
+          <ng-container *ngIf="!loading(); else sending">Send</ng-container>
         </button>
+        <ng-template #sending>Sending…</ng-template>
       </div>
+
+      <p class="error" *ngIf="error()">{{ error() }}</p>
 
       <mat-form-field appearance="outline" class="field">
         <mat-label>Response</mat-label>
