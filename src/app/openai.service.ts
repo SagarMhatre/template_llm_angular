@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-type ChatRole = 'system' | 'user' | 'assistant';
+export type ChatRole = 'system' | 'user' | 'assistant';
 
 export interface ChatMessage {
   role: ChatRole;

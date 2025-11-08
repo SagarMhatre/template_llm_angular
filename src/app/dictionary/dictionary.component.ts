@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { OpenAIService } from '../openai.service';
+import { OpenAIService, type ChatMessage } from '../openai.service';
 import { PromptStateService } from '../prompt-state.service';
 
 @Component({
@@ -17,7 +17,7 @@ import { PromptStateService } from '../prompt-state.service';
 export class DictionaryComponent {
   protected readonly term = signal('');
   protected readonly explanation = signal('');
-  protected readonly examples = signal('');
+  protected readonly examples = signal<string[]>([]);
   protected readonly info = signal('Enter a word or phrase to look up its meaning.');
   protected readonly error = signal<string | null>(null);
   protected readonly loading = signal(false);
@@ -50,16 +50,30 @@ export class DictionaryComponent {
     this.error.set(null);
     this.info.set(`Looking up “${value}”…`);
     this.explanation.set('');
-    this.examples.set('');
+    this.examples.set([]);
 
-    const prompt = `For the phrase "${value}" respond in the below format for a 7 yr old kid:
-- Explanation : A short and simple explanation in English (1–2 sentences, using age-appropriate vocabulary).
-- Examples : 2 example sentences in English showing how the word or phrase can be used.`;
+    const prompt = `For the phrase "${value}" create a response for a 7 year old.
+Return ONLY valid JSON (no markdown, no code fences, no prose) matching:
+{
+  "exp": "Short explanation in 1-2 age-appropriate sentences.",
+  "sent": ["Example sentence #1", "Example sentence #2"]
+}`;
+
+    const messages: ChatMessage[] = [
+      {
+        role: 'system',
+        content:
+          'You are a friendly kids dictionary. Always answer with strict JSON matching the provided schema.'
+      },
+      { role: 'user', content: prompt }
+    ];
 
     try {
-      const content = await this.openAI.complete(apiKey, this.promptState.selectedModel(), [
-        { role: 'user', content: prompt }
-      ]);
+      const content = await this.openAI.complete(
+        apiKey,
+        this.promptState.selectedModel(),
+        messages
+      );
       this.parseResponse(content);
       this.info.set('Here is a kid-friendly explanation and examples:');
     } catch (err) {
@@ -75,14 +89,17 @@ export class DictionaryComponent {
   private parseResponse(content: string): void {
     if (!content) {
       this.explanation.set('(no explanation returned)');
-      this.examples.set('');
+      this.examples.set([]);
       return;
     }
 
-    const explanationMatch = content.match(/Explanation\s*:?(.+?)(?:Examples|$)/is);
-    const examplesMatch = content.match(/Examples\s*:?([\s\S]+)/i);
-
-    this.explanation.set(explanationMatch?.[1]?.trim() ?? content.trim());
-    this.examples.set(examplesMatch?.[1]?.trim() ?? '');
+    try {
+      const parsed = JSON.parse(content) as { exp?: string; sent?: string[] };
+      this.explanation.set(parsed.exp?.trim() ?? '(no explanation returned)');
+      this.examples.set(parsed.sent?.map((s) => s.trim()).filter(Boolean) ?? []);
+    } catch {
+      this.explanation.set(content.trim());
+      this.examples.set([]);
+    }
   }
 }
