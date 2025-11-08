@@ -19,16 +19,21 @@ mat-toolbar {
   flex: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   padding: 2rem;
   box-sizing: border-box;
 }
 
-mat-card {
-  max-width: 500px;
+.prompt-card {
+  width: min(900px, 100%);
+}
+
+.field {
   width: 100%;
 }
 
-mat-card-content p {
-  margin-bottom: 1.5rem;
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 1rem 0;
 }

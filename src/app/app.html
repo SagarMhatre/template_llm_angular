@@ -1,25 +1,47 @@
 <mat-toolbar color="primary">
   <span>{{ title() | titlecase }}</span>
-  <span class="spacer"></span>
-  <button mat-stroked-button color="accent">Get Started</button>
 </mat-toolbar>
 
 <main class="content" role="main">
-  <mat-card>
+  <mat-card class="prompt-card">
     <mat-card-header>
-      <mat-card-title>Angular Material Showcase</mat-card-title>
-      <mat-card-subtitle>Toolbar and Card components working together</mat-card-subtitle>
+      <mat-card-title>Prompt Playground</mat-card-title>
+      <mat-card-subtitle>Type a prompt, send it, and review the response.</mat-card-subtitle>
     </mat-card-header>
+
     <mat-card-content>
-      <p>
-        Angular Material provides a rich set of UI components that follow the Material Design
-        specification. This example highlights how a <code>mat-toolbar</code> can frame your
-        application while a <code>mat-card</code> presents key information.
-      </p>
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Your prompt</mat-label>
+        <textarea
+          matInput
+          rows="6"
+          placeholder="Describe the task or question you want to send to the model..."
+          [value]="prompt()"
+          (input)="updatePrompt($event)"
+        ></textarea>
+      </mat-form-field>
+
+      <div class="actions">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="sendPrompt()"
+          [disabled]="!prompt().trim().length"
+        >
+          Send
+        </button>
+      </div>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Response</mat-label>
+        <textarea
+          matInput
+          rows="6"
+          readonly
+          placeholder="Model responses will appear here."
+          [value]="response()"
+        ></textarea>
+      </mat-form-field>
     </mat-card-content>
-    <mat-card-actions align="end">
-      <button mat-raised-button color="primary">Primary Action</button>
-      <button mat-button>Secondary Action</button>
-    </mat-card-actions>
   </mat-card>
 </main>
