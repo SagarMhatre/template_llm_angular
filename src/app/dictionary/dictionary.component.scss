@@ -1,0 +1,24 @@
+.dictionary {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+mat-card {
+  width: min(500px, 100%);
+}
+
+.field {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 1rem 0;
+}
+
+.status {
+  margin: 0;
+  color: #37474f;
+}

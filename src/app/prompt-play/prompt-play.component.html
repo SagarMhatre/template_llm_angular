@@ -1,0 +1,51 @@
+<section class="prompt-area">
+  <mat-card class="prompt-card">
+    <mat-card-header>
+      <mat-card-title>Prompt Playground</mat-card-title>
+      <mat-card-subtitle>Type a prompt, send it, and review the response.</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Your prompt</mat-label>
+        <textarea
+          matInput
+          rows="6"
+          placeholder="Describe the task or question you want to send to the model..."
+          [value]="promptState.prompt()"
+          [disabled]="promptState.loading()"
+          (input)="handlePromptInput($event)"
+        ></textarea>
+      </mat-form-field>
+
+      <div class="actions">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="sendPrompt()"
+          [disabled]="
+            promptState.loading() ||
+            !promptState.prompt().trim().length ||
+            !promptState.apiKey().trim().length
+          "
+        >
+          <ng-container *ngIf="!promptState.loading(); else sending">Send</ng-container>
+        </button>
+        <ng-template #sending>Sending…</ng-template>
+      </div>
+
+      <p class="error" *ngIf="promptState.error()">{{ promptState.error() }}</p>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Response</mat-label>
+        <textarea
+          matInput
+          rows="6"
+          readonly
+          placeholder="Model responses will appear here."
+          [value]="promptState.response()"
+        ></textarea>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+</section>

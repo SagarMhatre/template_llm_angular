@@ -1,0 +1,36 @@
+<section class="dictionary">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Dictionary</mat-card-title>
+      <mat-card-subtitle>Enter a word or phrase (max {{ maxLength }} characters)</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Word or phrase</mat-label>
+        <input
+          matInput
+          type="text"
+          [attr.maxlength]="maxLength"
+          placeholder="e.g. serendipity"
+          [value]="term()"
+          (input)="updateTerm($event)"
+        />
+        <mat-hint align="end">{{ term().length }}/{{ maxLength }}</mat-hint>
+      </mat-form-field>
+
+      <div class="actions">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="submit()"
+          [disabled]="!term().trim().length"
+        >
+          Submit
+        </button>
+      </div>
+
+      <p class="status">{{ message() }}</p>
+    </mat-card-content>
+  </mat-card>
+</section>

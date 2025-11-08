@@ -1,67 +1,18 @@
 <mat-toolbar color="primary">
   <span>{{ title() | titlecase }}</span>
   <span class="spacer"></span>
+  <button mat-button routerLink="/">Home</button>
+  <button mat-button routerLink="/dictionary">Dictionary</button>
+  <button mat-button routerLink="/prompt-play">Prompt Play</button>
   <button mat-stroked-button color="accent" (click)="toggleSettings(true)">Settings</button>
 </mat-toolbar>
 
 <div class="backdrop" *ngIf="showSettings()" (click)="toggleSettings(false)"></div>
 
 <div class="settings-container" *ngIf="showSettings()">
-  <app-settings-panel
-    [apiKey]="apiKey()"
-    [selectedModel]="selectedModel()"
-    [availableModels]="availableModels"
-    [loading]="loading()"
-    (apiKeyChange)="setApiKey($event)"
-    (modelChange)="updateModel($event)"
-    (close)="toggleSettings(false)"
-  ></app-settings-panel>
+  <app-settings-panel (close)="toggleSettings(false)"></app-settings-panel>
 </div>
 
 <main class="content" role="main">
-  <mat-card class="prompt-card">
-    <mat-card-header>
-      <mat-card-title>Prompt Playground</mat-card-title>
-      <mat-card-subtitle>Type a prompt, send it, and review the response.</mat-card-subtitle>
-    </mat-card-header>
-
-    <mat-card-content>
-      <mat-form-field appearance="outline" class="field">
-        <mat-label>Your prompt</mat-label>
-        <textarea
-          matInput
-          rows="6"
-          placeholder="Describe the task or question you want to send to the model..."
-          [value]="prompt()"
-          [disabled]="loading()"
-          (input)="updatePrompt($event)"
-        ></textarea>
-      </mat-form-field>
-
-      <div class="actions">
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="sendPrompt()"
-          [disabled]="loading() || !prompt().trim().length || !apiKey().trim().length"
-        >
-          <ng-container *ngIf="!loading(); else sending">Send</ng-container>
-        </button>
-        <ng-template #sending>Sending…</ng-template>
-      </div>
-
-      <p class="error" *ngIf="error()">{{ error() }}</p>
-
-      <mat-form-field appearance="outline" class="field">
-        <mat-label>Response</mat-label>
-        <textarea
-          matInput
-          rows="6"
-          readonly
-          placeholder="Model responses will appear here."
-          [value]="response()"
-        ></textarea>
-      </mat-form-field>
-    </mat-card-content>
-  </mat-card>
+  <router-outlet></router-outlet>
 </main>

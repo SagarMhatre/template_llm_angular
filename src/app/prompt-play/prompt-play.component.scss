@@ -1,0 +1,28 @@
+.prompt-area {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.prompt-card {
+  width: min(900px, 100%);
+}
+
+.field {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 1rem 0;
+}
+
+.error {
+  color: #b71c1c;
+  margin: 0 0 1rem;
+  font-weight: 500;
+}

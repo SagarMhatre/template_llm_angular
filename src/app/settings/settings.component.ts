@@ -1,15 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-
-export type ModelOption = {
-  value: string;
-  label: string;
-};
+import { PromptStateService } from '../prompt-state.service';
 
 @Component({
   selector: 'app-settings-panel',
@@ -19,17 +15,16 @@ export type ModelOption = {
   styleUrl: './settings.component.scss'
 })
 export class SettingsComponent {
-  @Input({ required: true }) apiKey = '';
-  @Input({ required: true }) selectedModel = '';
-  @Input({ required: true }) availableModels: ModelOption[] = [];
-  @Input({ required: true }) loading = false;
-
-  @Output() apiKeyChange = new EventEmitter<string>();
-  @Output() modelChange = new EventEmitter<string>();
   @Output() close = new EventEmitter<void>();
+
+  constructor(protected readonly promptState: PromptStateService) {}
 
   protected handleApiKeyInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
-    this.apiKeyChange.emit(value);
+    this.promptState.setApiKey(value);
+  }
+
+  protected handleModelChange(value: string): void {
+    this.promptState.setModel(value);
   }
 }
